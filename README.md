@@ -1,345 +1,223 @@
-# home-connect-mqtt
+# hc_bosch – Bosch Home Connect Dashboard
 
 Local network bridge for Bosch-Siemens Home Connect appliances → MQTT → Home Assistant.
+FastAPI-basiertes Dashboard mit Echtzeit-Session-Tracking und Verbrauchsanalyse.
 
-No cloud dependency for device communication. Uses PSK-encrypted WebSocket connections directly to the appliance on your local network. Includes a web dashboard for live status, session history, and consumption tracking.
+## Application Workflow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                            main.py (Entry)                              │
+└────────┬──────────────────────┬─────────────────────────┬───────────────┘
+         │                      │                         │
+         ▼                      ▼                         ▼
+┌─────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│  FastAPI Server │  │  MQTT WebSocket Feed │  │  Sensor Publisher    │
+│  (Port 5021)    │  │  (Bosch Appliance)   │  │  (30s aktiv/120s)    │
+└────────┬────────┘  └──────────┬───────────┘  └──────────┬───────────┘
+         │                      │                         │
+         │                      ▼                         │
+         │           ┌──────────────────────┐             │
+         │           │   State Manager      │             │
+         │           │   (data2mqtt.py)     │◄────────────┘
+         │           └─────┬──────────┬─────┘
+         │                 │          │
+         │                 ▼          ▼
+         │     ┌────────────────┐  ┌──────────────────┐
+         │     │ status.json    │  │ Session Tracker  │
+         │     │ (Persist)      │  │ (Start/End)      │
+         │     └────────────────┘  └────────┬─────────┘
+         │                                  │
+         ▼                                  ▼
+┌─────────────────────────────────────────────────────────┐
+│                    SQLite DB                            │
+│  sessions │ daily_summary │ state_log │ session_readings│
+└─────────────────────────────────────────────────────────┘
+         │                                  │
+         ▼                                  ▼
+┌──────────────────┐              ┌──────────────────────┐
+│  REST API        │              │  MQTT Broker         │
+│  /api/live       │              │  HA Discovery        │
+│  /api/daily      │              │  Heartbeat           │
+│  /api/sessions   │              │  Sensor Data         │
+│  /api/kpidata    │              └──────────────────────┘
+└────────┬─────────┘                        │
+         │                                  ▼
+         ▼                        ┌──────────────────────┐
+┌──────────────────┐              │  Home Assistant      │
+│  Web Dashboard   │              │  Webhook Events      │
+│  (Frontend SPA)  │              └──────────────────────┘
+└──────────────────┘
+
+MQTT_HOST=disabled → Nur Dashboard + DB (kein WebSocket, kein MQTT)
+```
 
 ## Features
 
-- Local WebSocket connection to Home Connect devices (no cloud polling)
-- MQTT publishing of device state, sensors, heartbeat (retained)
-- Home Assistant MQTT Discovery with device info block
-- Home Assistant Webhook integration (optional, session events)
-- Web dashboard with live status, phase indicator, session tracking, consumption charts
-- Real consumption measurement via external sensors (Sonoff Pow + ESP32 Watermeter)
-- SQLite database for session history and daily/monthly summaries
-- Automatic CSV export of session history
-- Cost calculation based on configurable energy/water prices per year
-- Spültab-Zähler with auto-reset and low-stock warning
-- Session simulation for testing without real appliance
-- Graceful shutdown (SIGINT/SIGTERM)
-- Docker-ready with docker-compose
+- FastAPI mit automatischer OpenAPI-Dokumentation (`/docs`)
+- Lokale WebSocket-Verbindung zu Home Connect Geräten (kein Cloud-Polling)
+- MQTT Publishing mit HA Discovery (optional, deaktivierbar)
+- Web Dashboard (SPA) mit Periodenauswahl, Live-Session-Chart, Kosten
+- Echtverbrauchsmessung via externe Sensoren (Sonoff Pow + ESP32 Wasseruhr)
+- SQLite-Datenbank für Session-Historie und Tages-/Monatssummen
+- KPI-Endpoint für zentrales Übersichts-Dashboard
+- Offline-Modus (`MQTT_HOST=disabled`) – nur Dashboard + DB
+- Graceful Shutdown (SIGINT/SIGTERM)
+- Docker-ready
 
-## Quick Start (Docker)
+## Quick Start
 
 ```bash
-# 1. Configure
+# Docker
 cp .env.example .env
-nano .env                          # Set MQTT and Bosch credentials
+nano .env                    # MQTT + Bosch-Credentials setzen
+make build && make up
+# → http://localhost:5021
 
-# 2. First run: fetches device config from Bosch Cloud
-docker compose up -d
-
-# 3. Open dashboard
-open http://YOUR-SERVER:5021
-
-# 4. Check logs
-docker compose logs -f
-```
-
-## Quick Start (Local)
-
-```bash
-# 1. Configure
-cp .env.example .env
-nano .env
-
-# 2. Install dependencies
+# Lokal
 pip install -r requirements.txt
-
-# 3. Run
-python3 app.py
-
-# 4. Dashboard: http://localhost:5021
+python3 main.py
 ```
 
-## Configuration
+## Configuration (`.env`)
 
-All configuration is done via `.env`. The application reads nothing else.
+| Variable | Default | Beschreibung |
+|----------|---------|--------------|
+| `MQTT_HOST` | `disabled` | MQTT Broker (`disabled` = nur Dashboard) |
+| `MQTT_PORT` | `1883` | MQTT Port |
+| `MQTT_USER` / `MQTT_PASS` | – | MQTT Auth (leer = keine) |
+| `MQTT_TOPIC_BASE` | `bosch-dishwasher` | Basis-Topic |
+| `DASHBOARD_PORT` | `5021` | Web Dashboard Port |
+| `BOSCH_EMAIL` / `BOSCH_PASSWORD` | – | Cloud-Login (nur erstmalig) |
+| `SENSOR_WATER_URL` | – | ESPHome Wasseruhr URL |
+| `SENSOR_ENERGY_URL` | – | Sonoff Pow (Tasmota) URL |
+| `HA_WEBHOOK_URL` / `HA_WEBHOOK_ID` | – | HA Webhook (optional) |
+| `FORECAST_ENERGY_MAX_KWH` | `1.05` | 100% Forecast Basis kWh |
+| `FORECAST_WATER_MAX_L` | `13.0` | 100% Forecast Basis Liter |
+| `LOG_LEVEL` | `INFO` | Logging Level |
+| `SAVE_SESSIONS` | `true` | Session-CSV speichern |
+| `SESSIONS_KEEP` | `10` | Max Session-Dateien |
 
-### Environment Variables (`.env`)
+## API Endpoints
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| **MQTT** | | |
-| `MQTT_HOST` | MQTT broker IP/hostname | `localhost` |
-| `MQTT_PORT` | MQTT broker port | `1883` |
-| `MQTT_USER` | MQTT username | _(empty = no auth)_ |
-| `MQTT_PASS` | MQTT password | _(empty)_ |
-| `MQTT_TOPIC_BASE` | Base topic for all MQTT messages | `bosch-dishwasher` |
-| `MQTT_KEEPALIVE` | MQTT keepalive in seconds | `60` |
-| **Bosch Cloud** | | |
-| `BOSCH_EMAIL` | Bosch cloud login email | _(first run only)_ |
-| `BOSCH_PASSWORD` | Bosch cloud login password | _(first run only)_ |
-| **Application** | | |
-| `LOG_LEVEL` | `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL` | `INFO` |
-| `DATA_HOSTNAME` | Hostname in MQTT payloads | `Docker App` |
-| `HEARTBEAT_TIME` | Heartbeat interval in seconds | `60` |
-| **HA Discovery** | | |
-| `HA_DISCOVERY` | Enable HA MQTT Discovery (`true`/`false`) | `true` |
-| `HA_DISCOVERY_PREFIX` | Discovery topic prefix | `homeassistant` |
-| **Dashboard** | | |
-| `DASHBOARD_PORT` | Dashboard HTTP port | `5021` |
-| `DASHBOARD_LIVE_DAYS` | Days shown in live chart | `14` |
-| **Sensors** _(optional)_ | | |
-| `SENSOR_WATER_URL` | ESPHome water meter URL | _(empty)_ |
-| `SENSOR_ENERGY_URL` | Sonoff Pow (Tasmota) URL | _(empty)_ |
-| **HA Webhook** _(optional)_ | | |
-| `HA_WEBHOOK_URL` | Home Assistant base URL | _(empty)_ |
-| `HA_WEBHOOK_ID` | Webhook ID (both required to activate) | _(empty)_ |
-| **Simulation** | | |
-| `SIMULATE_RECORD` | Record next wash cycle for replay (`true`/`false`) | `false` |
-| **Session CSV** | | |
-| `SAVE_SESSIONS` | Save session readings as CSV (`true`/`false`) | `true` |
-| `SESSIONS_DIR` | Directory for session CSV files | `./data/sessions` |
-| `SESSIONS_KEEP` | Max session files to keep (0=unlimited) | `10` |
-| **Forecast** | | |
-| `FORECAST_ENERGY_MAX_KWH` | 100% energy forecast base (kWh) | `1.05` |
-| `FORECAST_WATER_MAX_L` | 100% water forecast base (Liter) | `13.0` |
+| Endpoint | Beschreibung |
+|----------|--------------|
+| `GET /api/health` | Healthcheck |
+| `GET /api/status` | Aktueller Gerätezustand |
+| `GET /api/live` | Live-Status + Tagesverbrauch + letzte Session |
+| `GET /api/session/live` | Live-Chart-Daten der aktuellen/letzten Session |
+| `GET /api/daily?days=30` | Tägliche Zusammenfassung |
+| `GET /api/daily?from=&to=` | Tages-Zusammenfassung für Datumsbereich |
+| `GET /api/monthly?year=2026` | Monatliche Zusammenfassung |
+| `GET /api/sessions?limit=50` | Session-Liste |
+| `GET /api/years` | Verfügbare Jahre |
+| `GET /api/stats` | Gesamt-Statistiken mit Kosten |
+| `GET /api/costs` | Kostenkonfiguration |
+| `GET /api/export/csv` | CSV-Download aller Sessions |
+| `GET /api/kpidata` | KPI für Übersichts-Dashboard |
+| `GET /api/alldata` | Merged-Endpoint (alle Daten in einem Call) |
+| `GET /api/threads` | Diagnose: aktive Threads |
+| `GET /docs` | OpenAPI Swagger UI |
 
-### Device Configuration (`config/devices.yaml`)
+## Project Structure
 
-Local device settings – hostname, topic mapping, tabs, HA device info:
-
-```yaml
-bosch:
-  "012090517380017161":
-    hostname: "10.1.1.178"
-    installed: "2022-09-06 12:00:00"
-    taps: 20
-    taps_min: 5
-    device_info:
-      ids: ["BOSCH-DISHWASHER"]
-      name: "Bosch Geschirrspüler"
-      mf: "Bosch"
-      mdl: "Geschirrspüler SMV4HCX48E/24"
-      sa: "Küche"
-    topics:
-      OperationState: state
-      DoorState: door
-      RemainingProgramTime: remaining
-      PowerState: power
-      ProgramPhase: phase
-      ProgramProgress: progress
-      EnergyForecast: energyforecast
-      WaterForecast: waterforecast
-      SelectedProgram: selectedprogram
-      ActiveProgram: activeprogram
-      # ... see devices.yaml for full list
 ```
-
-### Cloud Device Data (`config/bosch/devices.json`)
-
-Contains encryption keys and device features from the Bosch Cloud. Generated by `make cloud-login`. This file only needs to be updated when the appliance firmware changes.
-
-### Cost Configuration (`config/costs.yaml`)
-
-Energy and water prices per year:
-
-```yaml
-2026:
-  strom: 0.23    # Euro pro kWh
-  wasser: 6.97   # Euro pro m³
-```
-
-## Dashboard
-
-The built-in web dashboard (port 5021) provides three views:
-
-- **Live** – Current status tiles, phase indicator bar, running session card with progress bar, last N days chart
-- **30 Tage** – Session-based view with consumption and cost breakdown
-- **Jahr** – Monthly consumption/cost charts with year selector
-
-Features:
-- Dark/light theme toggle
-- Auto-refresh (10s live, 60s other views)
-- Session cards for sparse data (≤3 data points), charts for more
-- Device age and runtime percentage tiles
-- Responsive layout for mobile
-
-## MQTT Topics
-
-| Topic | Retained | Description |
-|-------|----------|-------------|
-| `{base}/status` | yes | Current device state (JSON) |
-| `{base}/sensors` | yes | Sensor data + today stats + last session |
-| `{base}/heartbeat` | yes | Uptime, tabs remaining, device info |
-| `{base}/LWT` | yes | `Online` / `Offline` |
-| `{base}/message` | no | Raw device messages (only with `LOG_LEVEL=DEBUG`) |
-
-### Sensors Payload
-
-```json
-{
-  "timestamp": "2026-04-26 18:52:17",
-  "power_w": 5.0,
-  "today_date": "2026-04-26",
-  "today_sessions": 1,
-  "today_kwh": 0.743,
-  "today_liters": 37.0,
-  "today_cost_total": 0.429,
-  "prev_session_program": "Favorit",
-  "prev_session_kwh": 0.743,
-  "prev_session_liters": 37.0,
-  "prev_session_duration": 274.5,
-  "prev_session_result": "finished",
-  "session_active": "OFF"
-}
-```
-
-### Heartbeat Payload
-
-```json
-{
-  "state": "on",
-  "device": "dishwasher",
-  "uptime": "2d 5h 30m",
-  "totalrunning": "3y 7m",
-  "operatingtime": 31752.5,
-  "tabs": 20,
-  "tabsmin": 5,
-  "tabs_remaining": 17,
-  "version": "2.2.0"
-}
+hc_bosch/
+├── main.py                          # Entry-Point
+├── app/
+│   ├── api/
+│   │   ├── endpoints.py             # Router-Aggregator
+│   │   ├── dependencies.py          # Shared DI
+│   │   ├── routes_live.py           # /health, /status, /live, /session/live
+│   │   ├── routes_history.py        # /stats, /sessions, /daily, /monthly, /export
+│   │   └── routes_combined.py       # /alldata, /kpidata, /threads
+│   ├── core/
+│   │   ├── config.py                # Pydantic Settings (.env)
+│   │   ├── fastapi_app.py           # FastAPI App + Middleware
+│   │   ├── logging_config.py        # Stdlib Logging (RotatingFileHandler)
+│   │   ├── shutdown_manager.py      # Graceful Shutdown
+│   │   ├── heartbeat.py             # MQTT Heartbeat
+│   │   └── utils.py                 # Hilfsfunktionen
+│   ├── device/
+│   │   ├── data2mqtt.py             # State-Management + MQTT Publishing
+│   │   ├── login.py                 # Cloud-Login (OAuth)
+│   │   ├── device.py                # Message-Parser
+│   │   └── socket.py                # PSK/TLS WebSocket
+│   ├── infrastructure/
+│   │   ├── mqttclient.py            # MQTT Client (Retry + Backoff)
+│   │   ├── webhooks.py              # HA Webhook Client
+│   │   └── ha_discoveryitems.py     # HA MQTT Discovery
+│   ├── models/
+│   │   └── db_manager.py            # SQLite DB (Sessions, Stats)
+│   ├── schemas/
+│   │   ├── dishwasher.py            # Pydantic State/Session Models
+│   │   └── kpi.py                   # KPI Response Schema
+│   ├── service/
+│   │   ├── session_tracker.py       # Session-Erkennung (State-Machine)
+│   │   ├── session_writer.py        # Session-CSV Writer
+│   │   ├── sensor_reader.py         # HTTP Sensor-Polling (Tasmota/ESPHome)
+│   │   ├── sensor_publisher.py      # Sensor → MQTT + HA Discovery
+│   │   └── dishwasher_analytics.py  # Kosten/Verbrauchs-Berechnung
+│   └── config/
+│       ├── devices.yaml             # Geräte-Konfiguration
+│       ├── costs.yaml               # Tarife pro Jahr
+│       ├── lang/de.yaml             # Übersetzungen
+│       └── bosch/devices.json       # Cloud Device Keys
+├── frontend/
+│   ├── index.html                   # SPA Shell
+│   ├── css/style.bundle.css         # Gebundeltes CSS
+│   └── js/
+│       ├── dateselector.js          # Perioden-Selektor
+│       └── v2/                      # ES-Module
+│           ├── main.js              # Entry + Modus-Dispatch
+│           ├── layout.js            # DOM-Skelett
+│           ├── state.js             # Shared State
+│           ├── theme.js             # Dark/Light
+│           ├── tiles.js             # Tile-Renderer
+│           ├── liveView.js          # Live-Modus
+│           ├── liveChart.js         # Session-Chart
+│           ├── historyView.js       # Historien-Modus
+│           ├── yearView.js          # Jahres-Ansicht
+│           ├── chartBase.js         # Chart.js Config
+│           ├── chartRender.js       # Chart-Instanzen
+│           ├── phaseDetect.js       # Phasen-Erkennung
+│           └── utils.js             # Formatierung
+├── data/
+│   ├── dishwasher.db                # SQLite (auto-created)
+│   ├── status.json                  # Persistierter Geräte-State
+│   └── sessions/                    # Session-CSV für Replay
+├── docker-compose.yml
+├── dockerfile
+├── Makefile
+├── requirements.txt
+└── .env
 ```
 
 ## Development
 
 ```bash
-# Local run
-make run
-
-# Code quality
-make fmt              # Format with ruff
-make lint             # Lint with ruff
-make check            # Ruff + Pyright (saves to fehler.txt with --save)
-
-# Docker
-make build            # Build image
-make up               # Start container
-make down             # Stop container
-make rebuild          # Rebuild & restart (no cache)
-make logs             # Follow logs
-make shell            # Shell into container
-
-# Data management
-make testdata         # Generate 20 test sessions (backs up DB)
-make testdata-random  # Generate 90 days random data (backs up DB)
-make cleartestdata    # Restore original DB from backup
-make import-history   # Import data/history.csv
-
-# Session Export
-python3 scripts/export_sessions.py              # Letzte 10 Sessions aus DB
-python3 scripts/export_sessions.py --all        # Alle Sessions
-python3 scripts/export_sessions.py --limit 5    # Letzte 5 Sessions
-python3 scripts/export_sessions.py --out ./data/sessions  # Ausgabe-Verzeichnis
-
-# Simulation
-make simulate-dry     # Dry-run: show states without DB/MQTT changes
-make simulate         # Full simulation: runs through pipeline (backs up DB)
-make simulate-slow    # Full simulation with realistic timing
-
-# Cloud
-make cloud-login      # Fetch new device config from Bosch Cloud
-```
-
-## Project Structure
-
-```
-home-connect-mqtt/
-├── app.py                        # Main entry point
-├── config/
-│   ├── app_config.py             # Configuration (reads .env)
-│   ├── devices.yaml              # Local device config (hostname, topics, tabs)
-│   ├── costs.yaml                # Energy/water prices per year
-│   ├── lang/de.yaml              # German translations (programs, phases)
-│   └── bosch/
-│       ├── devices.json          # Cloud device data (keys, features)
-│       └── dishwasher/
-│           ├── discovery.yaml    # HA Discovery entity definitions
-│           └── schemalist.yaml   # HA Discovery payload templates
-├── lib/
-│   ├── hc/                       # Home Connect protocol
-│   │   ├── login.py              # Automatic OAuth cloud login
-│   │   ├── cloud_login.py        # Interactive cloud login (manual)
-│   │   ├── socket.py             # PSK/TLS WebSocket
-│   │   ├── device.py             # Message parser
-│   │   ├── data2mqtt.py          # State management, MQTT publishing, simulation recording
-│   │   └── xml2json.py           # Device XML → JSON converter
-│   ├── ha/
-│   │   └── ha_discoveryitems.py  # HA MQTT Discovery
-│   ├── dashboard_server.py       # Flask dashboard + REST API
-│   ├── db_manager.py             # SQLite session/history tracking
-│   ├── session_tracker.py        # Wash cycle detection + webhook + CSV export
-│   ├── session_writer.py         # Session CSV writer (for replay)
-│   ├── sensor_reader.py          # External sensor HTTP reader
-│   ├── sensor_publisher.py       # Sensor data → MQTT + HA Discovery
-│   ├── mqttclient.py             # MQTT client wrapper
-│   ├── webhooks.py               # Home Assistant webhook client
-│   ├── shutdown_manager.py       # Graceful shutdown coordination
-│   └── utils.py                  # Utility functions
-├── dashboard/
-│   └── static/
-│       └── index.html            # Single-page dashboard (Chart.js)
-├── scripts/
-│   ├── simulate.py               # Session simulation for testing
-│   ├── export_sessions.py        # Export session CSV from DB
-│   ├── testdata.py               # Test data generator (with DB backup)
-│   └── import_history.py         # CSV history import
-├── data/
-│   ├── dishwasher.db             # SQLite database (auto-created)
-│   ├── history/sessions.csv      # Auto-exported session history
-│   ├── sessions/                 # Session CSV files (for replay)
-│   └── simulate/last_session.json # Recorded session for replay
-├── docker-compose.yml
-├── dockerfile
-├── pyrightconfig.json
-├── .env.example
-├── Makefile
-└── requirements.txt
-```
-
-## Session CSV (Replay)
-
-Pro Spülgang wird eine CSV-Datei in `data/sessions/` geschrieben:
-
-```
-data/sessions/session_2026-05-03_23-30.csv
-```
-
-### Format
-
-Semikolon-getrennt, 9 Spalten:
-
-```
-timestamp;phase;state;progress;power_w;energy_kwh;water_m3;program;remaining
-2026-05-03T23:31:00;Vorspülen;Run;5;1020.0;289.653;160.236;Max Effizient;4:20
-```
-
-### Export aus DB
-
-```bash
-python3 scripts/export_sessions.py              # Letzte 10 Sessions
-python3 scripts/export_sessions.py --all        # Alle Sessions
-python3 scripts/export_sessions.py --limit 5    # Letzte 5
-```
-
-### Konfiguration
-
-```env
-SAVE_SESSIONS=true          # Session-CSV aktivieren
-SESSIONS_DIR=./data/sessions  # Verzeichnis
-SESSIONS_KEEP=10            # Max Dateien (ältere werden gelöscht)
+make run              # Lokal starten
+make fmt              # Code formatieren (ruff)
+make lint             # Lint (ruff)
+make build            # Docker Image bauen
+make rebuild          # Rebuild + Restart (no-cache)
+make logs             # Container Logs
+make shell            # Shell im Container
+make jsbuild          # JS + CSS bundlen (esbuild)
+make testdata         # Testdaten generieren
+make simulate         # Spülgang simulieren
+make git-update       # Push zu Forgejo
+make git-release      # Versions-Tag + Push
 ```
 
 ## Requirements
 
-- Python 3.10+ (tested with 3.12)
-- MQTT broker (Mosquitto or similar)
-- Bosch Home Connect appliance on local network
-- `sslpsk3` for PSK-TLS connection
+- Python 3.10+ (getestet mit 3.12)
+- MQTT Broker (optional, deaktivierbar)
+- Bosch Home Connect Gerät im lokalen Netzwerk
 
-## Acknowledgements
+## Changelog
 
-- [Trammell Hudson / hcpy](https://github.com/osresearch/hcpy) – Original Home Connect protocol implementation
-- [sslpsk3](https://pypi.org/project/sslpsk3/) – TLS-PSK support for Python 3.12+
+- **v2.2.0** – FastAPI Refaktor, modulares Frontend (ES-Modules), Pydantic Settings, KPI-Schema, Offline-Modus
+- **v2.1.0** – Sensor-Publisher, Session-CSV, Simulation, Water Plausibility
+- **v2.0.0** – SQLite DB, Dashboard, Session Tracking, HA Discovery
