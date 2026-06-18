@@ -2,14 +2,13 @@
 // Jahres-Ansicht und Alle-Jahre-Ansicht
 
 import { F, fD, r2, MN } from './utils.js';
-import { T, G } from './tiles.js';
+import { Card, CardGrid, Sparkline } from './tiles.js';
 import { renderMainChart, renderCostChart } from './chartRender.js';
 import { getBasePath } from './state.js';
-import { rsum, lst } from './historyView.js';
+import { lst } from './historyView.js';
 
 /**
  * Jahres-Ansicht – zeigt Monatswerte eines bestimmten Jahres
- * @param {string} year - z.B. "2024"
  */
 export function lyr(year) {
   const _B = getBasePath();
@@ -32,18 +31,35 @@ export function lyr(year) {
       tcs += d.cost_strom || 0; tcw += d.cost_wasser || 0; td += d.total_duration_min || 0;
     });
 
-    document.getElementById('stiles').innerHTML = G('Verbrauch ' + year,
-      T(ts, 'Spülgänge', 'i') + T(fD(td), 'Dauer', 'i') +
-      T(F(tk, 1) + ' kWh', 'Strom', 's') + T(F(tl, 0) + ' L', 'Wasser', 'wa'));
-    document.getElementById('cgrp').innerHTML = G('Kosten ' + year,
-      T(F(tcs, 2) + ' €', 'Stromkosten', 's') +
-      T(F(tcw, 2) + ' €', 'Wasserkosten', 'wa') +
-      T(F(tcs + tcw, 2) + ' €', 'Gesamt', 'w'));
+    // Card: Verbrauch (mit Sparkline)
+    const kwhSpark = Sparkline(data.map(d => d.kwh || 0), 'var(--strom)', 90, 28);
+    const cardVerbrauch = Card('Verbrauch ' + year, ts + ' Spülgänge', fD(td) + ' Gesamtdauer', [
+      { label: 'Strom', value: F(tk, 1) + ' kWh', color: 'var(--strom)' },
+      { label: 'Wasser', value: F(tl, 0) + ' L', color: 'var(--wasser)' },
+      { label: 'Pro Monat', value: F(ts / (data.length || 1), 1) + ' Sessions' },
+    ], '', '', kwhSpark);
 
-    const lb = data.map(d => {
-      const m = parseInt(d.month.substring(5));
-      return MN[m - 1] || d.month;
-    });
+    // Card: Kosten
+    const costSpark = Sparkline(data.map(d => (d.cost_strom || 0) + (d.cost_wasser || 0)), 'var(--orange)', 90, 28);
+    const cardKosten = Card('Kosten ' + year, F(tcs + tcw, 2) + ' €', 'Gesamt', [
+      { label: 'Stromkosten', value: F(tcs, 2) + ' €', color: 'var(--strom)' },
+      { label: 'Wasserkosten', value: F(tcw, 2) + ' €', color: 'var(--wasser)' },
+    ], '', '', costSpark);
+
+    // Card: Durchschnitt
+    let cardAvg = '';
+    if (ts > 1) {
+      cardAvg = Card('Ø pro Spülgang', F((tcs + tcw) / ts, 2) + ' €', '', [
+        { label: 'Dauer', value: F(td / ts, 0) + ' min' },
+        { label: 'Strom', value: F(tk / ts, 3) + ' kWh', color: 'var(--strom)' },
+        { label: 'Wasser', value: F(tl / ts, 1) + ' L', color: 'var(--wasser)' },
+      ]);
+    }
+
+    document.getElementById('stiles').innerHTML = CardGrid(cardVerbrauch + cardKosten + cardAvg);
+    document.getElementById('cgrp').innerHTML = '';
+
+    const lb = data.map(d => { const m = parseInt(d.month.substring(5)); return MN[m - 1] || d.month; });
     renderMainChart(lb,
       data.map(d => d.kwh || 0),
       data.map(d => d.liters || 0),
@@ -51,13 +67,12 @@ export function lyr(year) {
     renderCostChart(lb,
       data.map(d => d.cost_strom || 0),
       data.map(d => d.cost_wasser || 0));
-    rsum(ts, td, tk, tl, tcs, tcw);
   });
   lst(200, year);
 }
 
 /**
- * Alle-Jahre-Ansicht – Gesamtüberblick aller Jahre
+ * Alle-Jahre-Ansicht
  */
 export function lall() {
   const _B = getBasePath();
@@ -96,18 +111,34 @@ export function lall() {
       gts += ys.length; gtk += tk; gtl += tl2; gtcs += cs2; gtcw += cw2; gtd += td2;
     });
 
-    document.getElementById('stiles').innerHTML = G('Alle Jahre',
-      T(gts, 'Spülgänge', 'i') + T(fD(gtd), 'Dauer', 'i') +
-      T(F(gtk, 1) + ' kWh', 'Strom', 's') + T(F(gtl, 0) + ' L', 'Wasser', 'wa'));
-    document.getElementById('cgrp').innerHTML = G('Kosten gesamt',
-      T(F(gtcs, 2) + ' €', 'Strom', 's') +
-      T(F(gtcw, 2) + ' €', 'Wasser', 'wa') +
-      T(F(gtcs + gtcw, 2) + ' €', 'Gesamt', 'w'));
+    // Card: Gesamt
+    const cardGesamt = Card('Alle Jahre', gts + ' Spülgänge', fD(gtd) + ' Gesamtdauer', [
+      { label: 'Strom', value: F(gtk, 1) + ' kWh', color: 'var(--strom)' },
+      { label: 'Wasser', value: F(gtl, 0) + ' L', color: 'var(--wasser)' },
+    ]);
+
+    // Card: Kosten
+    const cardKosten = Card('Kosten gesamt', F(gtcs + gtcw, 2) + ' €', '', [
+      { label: 'Strom', value: F(gtcs, 2) + ' €', color: 'var(--strom)' },
+      { label: 'Wasser', value: F(gtcw, 2) + ' €', color: 'var(--wasser)' },
+    ]);
+
+    // Card: Durchschnitt
+    let cardAvg = '';
+    if (gts > 1) {
+      cardAvg = Card('Ø pro Spülgang', F((gtcs + gtcw) / gts, 2) + ' €', '', [
+        { label: 'Dauer', value: F(gtd / gts, 0) + ' min' },
+        { label: 'Strom', value: F(gtk / gts, 3) + ' kWh', color: 'var(--strom)' },
+        { label: 'Wasser', value: F(gtl / gts, 1) + ' L', color: 'var(--wasser)' },
+      ]);
+    }
+
+    document.getElementById('stiles').innerHTML = CardGrid(cardGesamt + cardKosten + cardAvg);
+    document.getElementById('cgrp').innerHTML = '';
 
     const lb = yd.map(d => d.year);
     renderMainChart(lb, yd.map(d => d.kwh), yd.map(d => d.liters), yd.map(d => d.sessions));
     renderCostChart(lb, yd.map(d => d.costS), yd.map(d => d.costW));
-    rsum(gts, gtd, gtk, gtl, gtcs, gtcw);
   });
   lst(9999);
 }

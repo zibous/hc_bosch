@@ -44,10 +44,7 @@ function onPeriodChange({ period, params }) {
 }
 
 function _showLiveUI() {
-  // Live-spezifisch einblenden
-  document.getElementById('lc').style.display = '';
   document.getElementById('pbar2').style.display = 'flex';
-  // Live-dynamisch (werden von ll() gesteuert)
   document.getElementById('liveChartCard').style.display = 'none';
   document.getElementById('rc').style.display = 'none';
   // History-Elemente ausblenden
@@ -57,13 +54,10 @@ function _showLiveUI() {
 }
 
 function _showHistoryUI() {
-  // Live-spezifisch ausblenden
-  document.getElementById('lc').style.display = 'none';
   document.getElementById('pbar2').style.display = 'none';
   document.getElementById('liveChartCard').style.display = 'none';
   document.getElementById('rc').style.display = 'none';
-  document.getElementById('sc').style.display = 'none';
-  // History-Bereiche zurücksetzen (werden von renderDayRange/lyr gefüllt)
+  // History-Bereiche zurücksetzen
   document.getElementById('stiles').innerHTML = '';
   document.getElementById('cgrp').innerHTML = '';
 }

@@ -248,7 +248,7 @@ select {
 
 .cw {
     position: relative;
-    height: 220px
+    height: 300px
 }
 
 canvas {
@@ -485,8 +485,18 @@ tr:hover td {
 footer {
     text-align: center;
     color: var(--muted);
-    font-size: .6rem;
-    padding: 6px
+    font-size: .65rem;
+    padding: 10px 8px;
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#app-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 .xb {
@@ -533,7 +543,7 @@ footer {
     }
 
     .cw {
-        height: 180px
+        height: 240px
     }
 
     h1 {
@@ -545,4 +555,101 @@ footer {
     .g {
         grid-template-columns: repeat(2, 1fr)
     }
+}
+
+
+/* === Kompakte Info-Cards (Hero + Detail-Rows) === */
+.cd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.cd {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cd-hdr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cd-title {
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+}
+
+.cd-badge {
+    font-size: .6rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+}
+
+.cd-hero {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+}
+
+.cd-hero-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cd-spark {
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+.cd-state.ok { color: var(--green); }
+.cd-state.w { color: var(--orange); }
+.cd-state.e { color: var(--red); }
+.cd-state.i { color: var(--muted); }
+
+.cd-sub {
+    font-size: .78rem;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.cd-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 4px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.cd-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .82rem;
+}
+
+.cd-lbl {
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.cd-val {
+    font-weight: 600;
+    color: var(--text);
 }

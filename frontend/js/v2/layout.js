@@ -21,10 +21,8 @@ export function buildHTMLSkeleton() {
       </div>
     </div>
 
-    <div class="grp" style="margin-bottom:8px">
-      <div id="stiles"></div>
-      <div id="pbar2" style="display:flex;gap:1px;margin-top:8px"></div>
-    </div>
+    <div id="stiles"></div>
+    <div id="pbar2" style="display:flex;gap:1px;margin-top:4px;margin-bottom:8px"></div>
 
     <div class="c" id="rc" style="display:none">
       <h3>🔄 Spülgang läuft</h3>
@@ -43,15 +41,6 @@ export function buildHTMLSkeleton() {
 
     <div id="cgrp"></div>
 
-    <div class="grp" id="lc" style="display:none">
-      <div class="grp-t">📊 Letzter Spülgang</div>
-      <div id="sgrid"></div>
-    </div>
-
-    <div class="grp" id="sc" style="display:none">
-      <div id="scc"></div>
-    </div>
-
     <div class="c" id="cc" style="display:none">
       <h3 id="ct">Spülgänge</h3>
       <div class="cw"><canvas id="mc"></canvas></div>
@@ -67,7 +56,9 @@ export function buildHTMLSkeleton() {
       <div class="tw" id="stbl"></div>
     </div>
 
-    <div class="rf" id="ri"></div>
-    <footer>Geschirrspüler · Bosch SMV4HCX48E v11</footer>
+    <footer>
+      <span>Geschirrspüler · Bosch SMV4HCX48E v11</span>
+      <span id="ri" style="margin-left:auto"></span>
+    </footer>
   `;
 }

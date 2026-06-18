@@ -2,13 +2,12 @@
 // Tages-/Perioden-basierte Historienansicht + Tabelle + CSV
 
 import { F, fD, r2 } from './utils.js';
-import { T, G } from './tiles.js';
+import { Card, CardGrid, Sparkline, T, G } from './tiles.js';
 import { renderMainChart, renderCostChart } from './chartRender.js';
 import { getBasePath } from './state.js';
 
 /**
  * Rendert den Historien-Modus für einen Tagesbereich (from/to).
- * Ersetzt die alten l30() / "Letzte X Tage" Ansichten.
  */
 export function renderDayRange(from, to) {
   const _B = getBasePath();
@@ -25,16 +24,16 @@ export function renderDayRange(from, to) {
     fetch(_B + '/api/stats').then(r => r.json())
   ]).then(([data, st]) => {
     if (!data || !data.length) {
-      document.getElementById('stiles').innerHTML = G(label, T('0', 'Spülgänge', 'i'));
+      document.getElementById('stiles').innerHTML = Card('Zeitraum', '0 Spülgänge', label, []);
       document.getElementById('cgrp').innerHTML = '';
-      ['cc', 'ccc', 'tc', 'sc'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+      ['cc', 'ccc', 'tc'].forEach(id => { document.getElementById(id).style.display = 'none'; });
       return;
     }
     data = data.filter(d => d.sessions_count > 0).reverse();
     if (!data.length) {
-      document.getElementById('stiles').innerHTML = G(label, T('0', 'Spülgänge', 'i'));
+      document.getElementById('stiles').innerHTML = Card('Zeitraum', '0 Spülgänge', label, []);
       document.getElementById('cgrp').innerHTML = '';
-      ['cc', 'ccc', 'tc', 'sc'].forEach(id => { document.getElementById(id).style.display = 'none'; });
+      ['cc', 'ccc', 'tc'].forEach(id => { document.getElementById(id).style.display = 'none'; });
       return;
     }
 
@@ -63,13 +62,32 @@ export function renderDayRange(from, to) {
     const cs2 = r2(tk * sp2);
     const cw2 = r2((tl / 1000) * wp);
 
-    document.getElementById('stiles').innerHTML = G('Verbrauch ' + label,
-      T(ts, 'Spülgänge', 'i') + T(fD(td), 'Dauer', 'i') +
-      T(F(tk, 2) + ' kWh', 'Strom', 's') + T(F(tl, 0) + ' L', 'Wasser', 'wa'));
-    document.getElementById('cgrp').innerHTML = G('Kosten ' + label,
-      T(F(cs2, 2) + ' €', 'Stromkosten', 's') +
-      T(F(cw2, 2) + ' €', 'Wasserkosten', 'wa') +
-      T(F(cs2 + cw2, 2) + ' €', 'Gesamt', 'w'));
+    // Card: Verbrauch (mit Sparkline)
+    const kwhSpark = Sparkline(data.map(d => d.total_energy_kwh || 0), 'var(--strom)', 90, 28);
+    const cardVerbrauch = Card('Verbrauch ' + label, ts + ' Spülgänge', fD(td) + ' Gesamtdauer', [
+      { label: 'Strom', value: F(tk, 2) + ' kWh', color: 'var(--strom)' },
+      { label: 'Wasser', value: F(tl, 0) + ' L', color: 'var(--wasser)' },
+    ], '', '', kwhSpark);
+
+    // Card: Kosten (mit Sparkline)
+    const costSpark = Sparkline(data.map(d => r2((d.total_energy_kwh || 0) * sp2 + ((d.total_water_liters || 0) / 1000) * wp)), 'var(--orange)', 90, 28);
+    const cardKosten = Card('Kosten ' + label, F(cs2 + cw2, 2) + ' €', 'Gesamt', [
+      { label: 'Stromkosten', value: F(cs2, 2) + ' €', color: 'var(--strom)' },
+      { label: 'Wasserkosten', value: F(cw2, 2) + ' €', color: 'var(--wasser)' },
+    ], '', '', costSpark);
+
+    // Card: Durchschnitt
+    let cardAvg = '';
+    if (ts > 1) {
+      cardAvg = Card('Ø pro Spülgang', F((cs2 + cw2) / ts, 2) + ' €', '', [
+        { label: 'Dauer', value: F(td / ts, 0) + ' min' },
+        { label: 'Strom', value: F(tk / ts, 3) + ' kWh', color: 'var(--strom)' },
+        { label: 'Wasser', value: F(tl / ts, 1) + ' L', color: 'var(--wasser)' },
+      ]);
+    }
+
+    document.getElementById('stiles').innerHTML = CardGrid(cardVerbrauch + cardKosten + cardAvg);
+    document.getElementById('cgrp').innerHTML = '';
 
     const lb = data.map(d => d.date ? d.date.substring(5) : '');
     renderMainChart(lb,
@@ -79,26 +97,13 @@ export function renderDayRange(from, to) {
     renderCostChart(lb,
       data.map(d => r2((d.total_energy_kwh || 0) * sp2)),
       data.map(d => r2(((d.total_water_liters || 0) / 1000) * wp)));
-    rsum(ts, td, tk, tl, cs2, cw2);
   });
 
-  // Tabelle für den Zeitraum
   _lstByRange(from, to);
 }
 
-/** Durchschnitt-Zusammenfassung */
-export function rsum(s, dur, kwh, lit, cs2, cw2) {
-  if (s <= 1) { document.getElementById('sc').style.display = 'none'; return; }
-  const ad = dur / s, ak = kwh / s, al = lit / s, ac = ((cs2 || 0) + (cw2 || 0)) / s;
-  let h = '<h3>⌀ pro Spülgang</h3><div class="g">';
-  h += T(F(ad, 0) + ' <span class="tu">min</span>', 'Dauer', 'i', null, null, '⏱️');
-  h += T(F(ak, 3) + ' <span class="tu">kWh</span>', 'Strom', 's', null, null, '⚡');
-  h += T(F(al, 1) + ' <span class="tu">L</span>', 'Wasser', 'wa', null, null, '💧');
-  h += T(F(ac, 2) + ' <span class="tu">€</span>', 'Kosten', 'w', null, null, '💰');
-  h += '</div>';
-  document.getElementById('scc').innerHTML = h;
-  document.getElementById('sc').style.display = '';
-}
+/** Durchschnitt-Zusammenfassung (Legacy – wird nicht mehr aktiv genutzt) */
+export function rsum() {}
 
 /** Sessions-Tabelle rendern */
 export function lst(limit, year) {
@@ -123,7 +128,6 @@ function _lstByRange(from, to) {
       document.getElementById('stbl').innerHTML = '<p style="padding:8px;color:var(--muted)">Keine Daten</p>';
       return;
     }
-    // Nach Datumsbereich filtern
     sess = sess.filter(s => {
       if (!s.start_time) return false;
       const d = s.start_time.substring(0, 10);
@@ -150,14 +154,11 @@ function _renderTable(sess) {
   document.getElementById('stbl').innerHTML = h;
 }
 
-/** Erzeugt ein lesbares Label für den Bereich */
 function _buildLabel(from, to) {
   if (from === to) return from;
-  // Differenz in Tagen berechnen
   const f = new Date(from);
   const t = new Date(to);
   const days = Math.round((t - f) / (1000 * 60 * 60 * 24)) + 1;
-  if (days <= 7) return days + ' Tage';
   if (days <= 31) return days + ' Tage';
   return from + ' – ' + to;
 }
