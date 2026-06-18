@@ -1,0 +1,72 @@
+{
+    "data": {
+        "homeAppliances": [
+            {
+                "aes": {
+                    "iv": "",
+                    "key": ""
+                },
+                "brand": "BOSCH",
+                "communicationType": "noGateway",
+                "configLabels": {
+                    "redLabels": [],
+                    "version": "8342.0.120554"
+                },
+                "customerindex": "24",
+                "ddfrevision": 1,
+                "ddfversion": 3,
+                "demo": false,
+                "enumber": "SMV4HCX48E/24",
+                "fdstring": "0209",
+                "identifier": "012090517380017161",
+                "info": "",
+                "mac": "C8-D7-78-3B-E8-73",
+                "name": "Abwaschmaschine ",
+                "pairingTime": 1662640476448,
+                "serialnumber": "012090517380017161",
+                "tls": {
+                    "key": "ph8qI3DtPFoaEKFPhMOb0UJv7ISZ9j8irwbKFSQm0HU"
+                },
+                "type": "Dishwasher",
+                "users": [
+                    {
+                        "email": "peter.siebler@gmail.com",
+                        "firstname": "Peter ",
+                        "hcId": "36ae5ba1-16f5-4a5d-bd36-668e3e5de837",
+                        "lastname": "Siebler",
+                        "su": true
+                    }
+                ],
+                "vib": "SMV4HCX48E",
+                "znumber": "01716"
+            }
+        ],
+        "loginType": "email",
+        "smartDevices": [
+            {
+                "identifier": "86b3a18419db18e3",
+                "language": "de-DE",
+                "name": "Redmi Note 4",
+                "platform": "android",
+                "pushVersion": 2,
+                "pushid": "du4nE0vJWO8:APA91bGS4dJlt76PbIbxE2T1U8cTZ0_XAOP9mouaPxBbnhFS3x8zFy1mBw-Y1sdOqvYgM8mpqOwGbF8RSN_taelybCY7wnEcyPGZhZYtlMG4RQ-cWc7VjsEgF_LP7Fu5TQYpXb_T-2RM",
+                "tokenValid": true,
+                "type": "phone"
+            }
+        ],
+        "user": {
+            "accountId": "36ae5ba1-16f5-4a5d-bd36-668e3e5de837",
+            "country": "AT",
+            "dataCollection": false,
+            "email": "peter.siebler@gmail.com",
+            "firstname": "Peter ",
+            "language": "de",
+            "lastname": "Siebler",
+            "marketingNewsletter": false,
+            "marketingPermission": false,
+            "registrationTime": 1662640082027,
+            "trackingEnabled": false
+        }
+    },
+    "hcId": "36ae5ba1-16f5-4a5d-bd36-668e3e5de837"
+}

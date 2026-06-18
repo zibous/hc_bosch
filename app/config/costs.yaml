@@ -1,0 +1,26 @@
+# -----------------------------------------------
+# Kosten pro Jahr für Verbrauchsberechnung
+# -----------------------------------------------
+# strom: Euro pro kWh (Brutto) – aus Strombezug (SE)
+# wasser: Euro pro m³ (Brutto) – aus Wasserkosten
+# -----------------------------------------------
+
+2022:
+  strom: 0.21
+  wasser: 6.19
+
+2023:
+  strom: 0.17
+  wasser: 7.34
+
+2024:
+  strom: 0.18
+  wasser: 6.57
+
+2025:
+  strom: 0.23
+  wasser: 6.97
+
+2026:
+  strom: 0.23
+  wasser: 6.97

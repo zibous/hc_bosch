@@ -1,0 +1,58 @@
+# -----------------------------------------------
+# Secrets & Environment
+# -----------------------------------------------
+.env
+.envrc
+
+# -----------------------------------------------
+# Python
+# -----------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+.venv/
+
+# -----------------------------------------------
+# Data (runtime, not source)
+# -----------------------------------------------
+data/dishwasher.db
+data/dishwasher.db.backup
+data/dishwasher.db.org
+data/history/
+data/simulate/
+data/ha/
+data/mqtt_sensors.json
+data/status.json
+logs/
+todos/
+
+# -----------------------------------------------
+# Config (secrets, device keys)
+# -----------------------------------------------
+config/bosch/devices.json
+config/bosch_new/
+
+# -----------------------------------------------
+# IDE & OS
+# -----------------------------------------------
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
+
+# -----------------------------------------------
+# Docker
+# -----------------------------------------------
+docker-compose.override.yml
+
+# -----------------------------------------------
+# Build & Temp
+# -----------------------------------------------
+build/
+dist/
+fehler.txt
+scripts/xml/

@@ -1,0 +1,21 @@
+{
+    "include": [
+        "app.py",
+        "config",
+        "lib",
+        "scripts"
+    ],
+    "exclude": [
+        "lib/hc/socket.py",
+        "testcases",
+        ".venv",
+        "archiv",
+        "**/__pycache__"
+    ],
+    "reportArgumentType": "warning",
+    "reportReturnType": "warning",
+    "reportOptionalOperand": "warning",
+    "reportOptionalMemberAccess": "warning",
+    "reportAttributeAccessIssue": "warning",
+    "pythonVersion": "3.11"
+}

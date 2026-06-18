@@ -1,0 +1,44 @@
+# -----------------------------------------------
+# Device configuration for Home Connect appliances
+# -----------------------------------------------
+# Credentials (email/password) come from environment
+# variables BOSCH_EMAIL and BOSCH_PASSWORD.
+# -----------------------------------------------
+
+bosch:
+  "012090517380017161":
+    hostname: "10.1.1.178"
+    installed: "2022-09-06 12:00:00"
+    taps: 20
+    taps_min: 5
+
+    # HA Discovery device info
+    device_info:
+      ids: ["BOSCH-DISHWASHER"]
+      name: "Bosch Geschirrspüler"
+      mf: "Bosch"
+      mdl: "Geschirrspüler SMV4HCX48E/24"
+      sa: "Küche"
+      sw: "8342.0.120554"
+      via_device: "bosch-dishwasher"
+
+    topics:
+      OperationState: state
+      DoorState: door
+      RemainingProgramTime: remaining
+      PowerState: power
+      InternalError: error
+      FatalErrorOccured: error
+      ProgramPhase: phase
+      ProgramFinished: finished
+      HalfLoad: halfload
+      ProgramProgress: progress
+      AquaStopOccured: waterleak
+      LowWaterPressure: lowwater
+      CheckFilterSystem: checkfilter
+      EnergyForecast: energyforecast
+      WaterForecast: waterforecast
+      SelectedProgram: selectedprogram
+      ActiveProgram: activeprogram
+      Started: sessions
+      ExtraDry: extradry

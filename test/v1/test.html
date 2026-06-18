@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geschirrspüler Dashboard</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    .kpi-box {
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body class="has-background-light">
+
+  <!-- HEADER -->
+  <section class="hero is-info">
+    <div class="hero-body">
+      <p class="title">Geschirrspüler</p>
+      <p class="subtitle">Status: Ready · Tür: Closed · Programm: Eco 50° · Phase: Trocknen</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+
+      <!-- TABS -->
+      <div class="tabs is-boxed">
+        <ul>
+          <li class="is-active"><a>Übersicht</a></li>
+          <li><a>Historie</a></li>
+          <li><a>Einstellungen</a></li>
+        </ul>
+      </div>
+
+      <!-- KPI KACHELN -->
+      <div class="columns is-multiline">
+
+        <div class="column is-one-quarter">
+          <div class="kpi-box">
+            <p class="heading">Stromverbrauch</p>
+            <p class="kpi-value">0,51 kWh</p>
+          </div>
+        </div>
+
+        <div class="column is-one-quarter">
+          <div class="kpi-box">
+            <p class="heading">Wasserverbrauch</p>
+            <p class="kpi-value">5,6 L</p>
+          </div>
+        </div>
+
+        <div class="column is-one-quarter">
+          <div class="kpi-box">
+            <p class="heading">Kosten</p>
+            <p class="kpi-value">0,24 €</p>
+          </div>
+        </div>
+
+        <div class="column is-one-quarter">
+          <div class="kpi-box">
+            <p class="heading">Dauer</p>
+            <p class="kpi-value">287 min</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CHART -->
+      <div class="box">
+        <h3 class="title is-4">Verbrauch am 2026‑06‑13</h3>
+        <canvas id="verbrauchChart"></canvas>
+      </div>
+
+      <!-- LETZTER SPÜLGANG -->
+      <div class="box">
+        <h4 class="title is-5">Letzter Spülgang</h4>
+        <p><strong>Phase:</strong> Trocknen</p>
+        <p><strong>Programm:</strong> Eco 50°</p>
+        <p><strong>Datum:</strong> 2026‑06‑13, 15:19</p>
+        <p><strong>Dauer:</strong> 287 min</p>
+        <p><strong>Strom:</strong> 0,777 kWh</p>
+        <p><strong>Wasser:</strong> 9,0 L</p>
+        <p><strong>Kosten:</strong> 0,242 €</p>
+        <p><strong>Ergebnis:</strong> finished</p>
+      </div>
+
+      <!-- JAHRESSTATISTIK -->
+      <div class="columns is-multiline">
+
+        <div class="column is-one-fifth">
+          <div class="kpi-box">
+            <p class="heading">Spülgänge</p>
+            <p class="kpi-value">19</p>
+          </div>
+        </div>
+
+        <div class="column is-one-fifth">
+          <div class="kpi-box">
+            <p class="heading">Monat</p>
+            <p class="kpi-value">3</p>
+          </div>
+        </div>
+
+        <div class="column is-one-fifth">
+          <div class="kpi-box">
+            <p class="heading">Strom</p>
+            <p class="kpi-value">16,0 kWh</p>
+          </div>
+        </div>
+
+        <div class="column is-one-fifth">
+          <div class="kpi-box">
+            <p class="heading">Wasser</p>
+            <p class="kpi-value">227 L</p>
+          </div>
+        </div>
+
+        <div class="column is-one-fifth">
+          <div class="kpi-box">
+            <p class="heading">Kosten</p>
+            <p class="kpi-value">5,25 €</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CHART SCRIPT -->
+  <script>
+    const ctx = document.getElementById('verbrauchChart');
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Vorspülen', 'Hauptspülen', 'Klarspülen', 'Trocknen'],
+        datasets: [
+          {
+            label: 'Strom (W)',
+            data: [120, 350, 180, 60],
+            backgroundColor: 'rgba(0, 209, 178, 0.5)'
+          },
+          {
+            label: 'Wasser (L)',
+            data: [1.2, 6.0, 1.8, 0],
+            backgroundColor: 'rgba(0, 123, 255, 0.5)'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

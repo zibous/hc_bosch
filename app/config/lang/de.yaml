@@ -1,0 +1,108 @@
+# -----------------------------------------------
+# Sprachdatei Deutsch – Bosch Geschirrspüler
+# -----------------------------------------------
+
+# Programmnamen (UID → Name)
+programs:
+  8192: "Intensiv 70°"
+  8195: "Auto 45-65°"
+  8196: "Eco 50°"
+  8197: "Glas 40°"
+  8199: "Schnell 45°"
+  8200: "Vorspülen"
+  8202: "Nachtprogramm"
+  8203: "Schnell 65°"
+  8210: "Intensiv Power"
+  8212: "Super 60°"
+  8213: "Kurz 60°"
+  8215: "Maschinenpflege"
+  8218: "Gemischte Beladung"
+  8222: "Schnell D"
+  8227: "Max Effizient"
+  32828: Max Effizient  # "Favorit"
+
+# Programmphasen
+phases:
+  None: "In Bereitschat"
+  PreRinse: "Vorspülen"
+  MainWash: "Hauptspülen"
+  FinalRinse: "Klarspülen"
+  Drying: "Trocknen"
+  Finished: "Fertig"
+
+# Betriebszustände
+states:
+  Inactive: "Inaktiv"
+  Ready: "Bereit"
+  DelayedStart: "Verzögerter Start"
+  Run: "Läuft"
+  Pause: "Pause"
+  ActionRequired: "Aktion erforderlich"
+  Finished: "Fertig"
+  Error: "Fehler"
+  Aborting: "Abbruch"
+
+# Türzustand
+door:
+  Open: "Offen"
+  Closed: "Geschlossen"
+
+# Power
+power:
+  "On": "Ein"
+  "Off": "Aus"
+
+# Session-Ergebnisse
+results:
+  finished: "Fertig"
+  aborted: "Abgebrochen"
+  error: "Fehler"
+  running: "Läuft"
+  unknown: "Unbekannt"
+
+# Dashboard-Texte
+dashboard:
+  title: "Geschirrspüler · Dashboard"
+  live: "Live"
+  days30: "30 Tage"
+  year: "Jahr"
+  status: "Status"
+  door: "Tür"
+  power: "Power"
+  program: "Programm"
+  phase: "Phase"
+  progress: "Fortschritt"
+  remaining: "Restzeit"
+  sessions: "Spülgänge"
+  today: "Heute"
+  month: "Monat"
+  duration: "Dauer"
+  energy: "Strom"
+  water: "Wasser"
+  costs: "Kosten"
+  total: "Gesamt"
+  last_session: "Letzter Spülgang"
+  result: "Ergebnis"
+  current_power: "Aktuell"
+  energy_forecast: "Energie Forecast"
+  water_forecast: "Wasser Forecast"
+
+# HA Discovery Sensor-Namen
+ha_sensors:
+  device_name: "Geschirrspüler Sensoren"
+  device_model: "Sonoff Pow + ESP32 Watermeter"
+  power_w: "Geschirrspüler Leistung"
+  today_sessions: "Geschirrspüler Sessions heute"
+  today_kwh: "Geschirrspüler Strom heute"
+  today_liters: "Geschirrspüler Wasser heute"
+  today_duration_min: "Geschirrspüler Laufzeit heute"
+  today_cost_strom: "Geschirrspüler Stromkosten heute"
+  today_cost_wasser: "Geschirrspüler Wasserkosten heute"
+  today_cost_total: "Geschirrspüler Kosten heute"
+  last_session_kwh: "Geschirrspüler letzter Spülgang kWh"
+  last_session_liters: "Geschirrspüler letzter Spülgang Liter"
+  last_session_duration: "Geschirrspüler letzter Spülgang Dauer"
+  last_session_cost: "Geschirrspüler letzter Spülgang Kosten"
+  last_session_program: "Geschirrspüler letztes Programm"
+  last_session_result: "Geschirrspüler letztes Ergebnis"
+  session_active: "Geschirrspüler Session aktiv"
