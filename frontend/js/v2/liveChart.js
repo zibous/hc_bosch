@@ -5,6 +5,7 @@ import { F } from './utils.js';
 import { getChartColors } from './chartBase.js';
 import { getBasePath } from './state.js';
 import { detectPhases, aggregate } from './phaseDetect.js';
+import { getAppleIcon } from '../icons.js';
 
 let lsch = null;
 let _lschLoaded = false;
@@ -28,8 +29,8 @@ export function loadLiveChart(forceRefresh) {
     else if (rd.length > 100) rd = aggregate(rd, 5);
 
     const sessionDate = rd[0].timestamp ? rd[0].timestamp.substring(0, 10) : '';
-    document.getElementById('liveChartTitle').textContent = d.active
-      ? '⚡ Verbrauch live' : '⚡ Verbrauch am ' + sessionDate;
+    document.getElementById('liveChartTitle').innerHTML = d.active
+      ? getAppleIcon('energy', 14, 1.0, 4) + ' Verbrauch live' : getAppleIcon('energy', 14, 1.0, 4) + ' Verbrauch am ' + sessionDate;
 
     const labels = rd.map(r => r.timestamp ? r.timestamp.substring(11, 16) : '');
     const pw = rd.map(r => r.power_w);
@@ -96,7 +97,7 @@ function _buildScales(pw, kwh, lit, c) {
 
 function _renderPhaseSummary(rd, kwh, lit) {
   const ps = document.getElementById('phaseSummary');
-  const phaseEmoji = { 'Vorspülen': '🔄', 'Hauptspülen': '🧽', 'Spülen': '🧽', 'Klarspülen': '💧', 'Trocknen': '🔥', 'Fertig': '✅' };
+  const phaseEmoji = { 'Vorspülen': getAppleIcon('sync', 12, 1.0, 2), 'Hauptspülen': getAppleIcon('scrub', 12, 1.0, 2), 'Spülen': getAppleIcon('scrub', 12, 1.0, 2), 'Klarspülen': getAppleIcon('drop', 12, 1.0, 2), 'Trocknen': getAppleIcon('flame', 12, 1.0, 2), 'Fertig': getAppleIcon('check', 12, 1.0, 2) };
   const phaseClr = { 'Vorspülen': '#64748b', 'Hauptspülen': '#f59e0b', 'Spülen': '#f59e0b', 'Klarspülen': '#3b82f6', 'Trocknen': '#ef4444', 'Fertig': '#10b981' };
 
   const phases = {};

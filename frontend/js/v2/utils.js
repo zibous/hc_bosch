@@ -1,6 +1,8 @@
 // frontend/js/v2/utils.js
 // Gemeinsame Hilfsfunktionen
 
+import { getAppleIcon } from '../icons.js';
+
 /** Zahlen-Formatierung de-DE */
 export function F(v, d) {
   d = d || 0;
@@ -26,7 +28,7 @@ export function r2(v) {
 export function CL(dk) {
   return {
     text: dk ? '#e2e8f0' : '#0f172a',
-    grid: dk ? '#1e2235' : '#e2e8f0',
+    grid: dk ? '#334155' : '#e2e8f0',
     muted: dk ? '#64748b' : '#94a3b8'
   };
 }
@@ -46,7 +48,9 @@ export function sc(s) {
 
 /** Tür-Icon */
 export function dI(d) {
-  return d === 'Closed' ? '🔒' : '🔓';
+  const lockIcon = `<svg style="width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:text-bottom;" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+  const unlockIcon = `<svg style="width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:inline-block;vertical-align:text-bottom;" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
+  return d === 'Closed' ? lockIcon : unlockIcon;
 }
 
 /** Betriebsdauer seit Installation */

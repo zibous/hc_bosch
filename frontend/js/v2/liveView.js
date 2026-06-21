@@ -6,6 +6,7 @@ import { Card, CardGrid, Sparkline } from './tiles.js';
 import { renderMainChart, renderCostChart } from './chartRender.js';
 import { loadLiveChart } from './liveChart.js';
 import { getBasePath, getConfig, getLastState, setLastState } from './state.js';
+import { getAppleIcon } from '../icons.js';
 
 export function ll() {
   const _B = getBasePath();
@@ -75,7 +76,7 @@ export function ll() {
       last.program || '–',
       last.start_time ? last.start_time.substring(0, 10) : '',
       lastRows,
-      last.result === 'finished' ? '✓' : '',
+      last.result === 'finished' ? getAppleIcon('check', 12, 1.0, 0, 'var(--green)') : '',
       'var(--green)'
     );
 

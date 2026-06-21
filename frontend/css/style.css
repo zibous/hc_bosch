@@ -13,11 +13,8 @@ body.light {
     --grp: rgba(241, 245, 249, .8)
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0
-}
+/* --- Reset --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html,
 body {
@@ -39,6 +36,65 @@ h1 {
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: 700
+}
+
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0 24px;
+    height: 120px;
+    z-index: 1000;
+    background: var(--surface);
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 1.2rem;
+}
+
+.header-left h1 {
+    color: var(--accent);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.header-sub {
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 1.2rem;
+}
+
+.app-content {
+    flex: 1;
+    padding: 0 10px;
+    margin-top: 130px;
+}
+
+.app-footer {
+  margin-top: 24px;
+  margin-left: -18px;
+  margin-right: -18px;
+  padding: 12px 24px;
+  background: var(--card-bg);
+  width: calc(100% + 36px);
+  text-align: center;
+  font-size: .68rem;
+  color: var(--text2);
 }
 
 .hdr {
@@ -482,20 +538,7 @@ tr:hover td {
     margin-top: 3px
 }
 
-footer {
-    text-align: center;
-    color: var(--muted);
-    font-size: .65rem;
-    padding: 10px 8px;
-    margin-top: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 #app-root {
-    display: flex;
-    flex-direction: column;
     min-height: 100vh;
 }
 
@@ -652,4 +695,15 @@ footer {
 .cd-val {
     font-weight: 600;
     color: var(--text);
+}
+
+
+.ds-custom input[type="date"]::-webkit-calendar-picker-indicator { 
+    filter: invert(var(--is-dark, 1));
+    cursor: pointer; 
+}
+
+[data-theme="dark"]  .ds-custom input[type="date"]::-webkit-calendar-picker-indicator { 
+    filter: invert(1); 
+    cursor: pointer; 
 }

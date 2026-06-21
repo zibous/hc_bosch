@@ -1,17 +1,14 @@
 // frontend/js/v2/theme.js
 // Theme-Management (Dark/Light)
 
+import { getAppleIcon } from '../icons.js';
+
 let dk = localStorage.getItem('dw-theme') !== 'light';
 
 export function isDark() { return dk; }
 
 export function initTheme() {
   applyTheme();
-  try {
-    const bgC = localStorage.getItem('dw-bg') || '';
-    if (bgC) document.body.style.background = bgC;
-    document.getElementById('bgPick').value = bgC || getComputedStyle(document.body).getPropertyValue('--bg').trim();
-  } catch (e) { /* ignore */ }
 }
 
 export function toggleTheme(onToggle) {
@@ -21,8 +18,9 @@ export function toggleTheme(onToggle) {
 }
 
 function applyTheme() {
+  document.documentElement.setAttribute('data-theme', dk ? 'dark' : 'light');
   document.body.classList.toggle('light', !dk);
-  document.getElementById('themeBtn').textContent = dk ? '🌙' : '☀️';
+  document.getElementById('themeBtn').innerHTML = dk ? getAppleIcon('moon', 16, '#94a3b8') : getAppleIcon('sun', 16, '#f59e0b');
   localStorage.setItem('dw-theme', dk ? 'dark' : 'light');
 }
 

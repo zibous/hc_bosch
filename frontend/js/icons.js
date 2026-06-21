@@ -39,7 +39,15 @@ export function getAppleIcon(name, size = 16, opacity = 1.0, marginRight = 0, co
     efficiency: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M2 20h20M21 6l-7 7-4-4-6 6M21 6h-4M21 6v4"/></svg>`,
     reactive_power: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="m3 3 18 18M21 3v6M3 21h6"/></svg>`,
     symmetry: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M12 3v18M3 12h18M5 19l14-14"/></svg>`,
-    car: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="15" cy="17" r="2"/></svg>`
+    car: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="15" cy="17" r="2"/></svg>`,
+
+    // --- DISHWASHER ICONS ---
+    wash: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>`,
+    rinse: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>`,
+    dry: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14 0-5.5 3.5-7.5 0 0 .5 4 2 5s2.17 2.97 2.17 4.73A5.5 5.5 0 0 1 12 16.5a5.5 5.5 0 0 1-3.5-2z"/></svg>`,
+    check: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>`,
+    download: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+    scrub: `<svg ${cls} style="${finalStyle}" viewBox="0 0 24 24"><path d="M3 17h4v4H3zM10 11h4v10h-4zM17 6h4v15h-4z"/></svg>`
   };
 
   return svgLibrary[name] || '';

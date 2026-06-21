@@ -88,6 +88,8 @@ function sr() {
 function _updateTimestamp() {
   const el = document.getElementById('ri');
   if (el) el.textContent = 'Aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
+  const el2 = document.getElementById('footer-update');
+  if (el2) el2.textContent = 'Aktualisiert: ' + new Date().toLocaleTimeString('de-DE');
 }
 
 // --- Initialisierung ---
@@ -105,8 +107,10 @@ function init() {
 
   // Theme initialisieren + Event-Handler
   initTheme();
-  document.getElementById('themeBtn').addEventListener('click', () => toggleTheme(ld));
-  document.getElementById('bgPick').addEventListener('input', e => setBg(e.target.value));
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    resetLiveChartLoaded();
+    toggleTheme(ld);
+  });
 
   // CSV-Button
   document.getElementById('csvBtn').addEventListener('click', xcsv);
@@ -129,3 +133,19 @@ function init() {
 }
 
 init();
+
+/* ----------------------------------------------------
+   INFO
+---------------------------------------------------- */
+const appinfo = {
+  name: "✓ BoschDishwasher-dashboard ",
+  app: "hc_smet",
+  version: "3.0.0"
+};
+
+console.info(
+  "%c " + appinfo.name + "    %c ▪︎▪︎▪︎▪︎ Version: " + appinfo.version + " ▪︎▪︎▪︎▪︎ ",
+  "color:#FFFFFF; background:#3498db;display:inline-block;font-size:12px;font-weight:200;padding: 4px 0 4px 0",
+  "color:#2c3e50; background:#ecf0f1;display:inline-block;font-size:12px;font-weight:200;padding: 4px 0 4px 0"
+);
+console.log("[cards-layout] loaded — version:", appinfo.version);
