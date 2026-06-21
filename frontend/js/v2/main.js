@@ -99,27 +99,33 @@ function init() {
   const basePath = (p === '' || p === '/index.html') ? '' : p;
   setBasePath(basePath);
 
-  // DOM-Skelett erzeugen
+  // DOM-Skelett erzeugen (schreibt nun direkt in den body)
   buildHTMLSkeleton();
 
-  // Device-Bild setzen
-  document.getElementById('devImg').src = basePath + '/device.png';
+  // 🌟 FIX: Absolut bombensichere Zuweisung für das Geräte-Bild!
+  const deviceImage = document.getElementById('devImg');
+  if (deviceImage !== null && deviceImage !== undefined) {
+    deviceImage.src = basePath + '/device.png';
+  }
 
   // Theme initialisieren + Event-Handler
-  initTheme();
-  document.getElementById('themeBtn').addEventListener('click', () => {
+  initTheme(() => {
     resetLiveChartLoaded();
-    toggleTheme(ld);
+    ld();
   });
 
   // CSV-Button
-  document.getElementById('csvBtn').addEventListener('click', xcsv);
+  const csvButton = document.getElementById('csvBtn');
+  if (csvButton) csvButton.addEventListener('click', xcsv);
 
   // Refresh-Callback für State-Änderungen
   setRefreshCallback(sr);
 
   // DateSelector initialisieren
-  initDateSelector(document.getElementById('ds-container'), onPeriodChange, basePath);
+  const dsContainer = document.getElementById('ds-container');
+  if (dsContainer) {
+    initDateSelector(dsContainer, onPeriodChange, basePath);
+  }
 
   // Konfig laden
   fetch(basePath + '/api/config').then(r => r.json()).then(cfg => {
@@ -131,6 +137,7 @@ function init() {
     });
   }).catch(() => {});
 }
+
 
 init();
 
