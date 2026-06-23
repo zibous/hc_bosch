@@ -12,22 +12,18 @@ export function buildHTMLSkeleton() {
       <div class="header-left">
         <img src="" alt="" class="di" id="devImg">
         <div>
-          <!-- 🌟 OPTIMIERT: Titel farblich passend zu Wasser & Sauberkeit (Aqua-Blau & Platin-Grau) -->
           <h1 id="app-title"><span style="color: #0ea5e9;">Geschirr</span><span style="color: #94a3b8;">spüler</span></h1>
           <div class="header-sub" id="app-subtitle">Bosch SMV4HCX48E</div>
         </div>
       </div>
+
       <div class="header-right">
         <span id="cs" style="font-size:.68rem"></span>
         <span id="ri" style="font-size:.68rem;color:var(--muted)"></span>
-        <!-- 🌟 Der alte #themeBtn fliegt hier aus dem Header raus -->
       </div>
 
-      <!-- 🌟 OPTIMIERT: Das Spül-Hintergrundbild (Sprüharme + Wasserwellen + Glanz-Sterne, 45% Deckkraft) -->
       <div class="header-bg-wrapper" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 1;">
         <svg style="width: auto; height: 75px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; opacity: 0.45;" viewBox="0 0 800 200">
-
-          <!-- 🌀 Rotierender Spülarm links (Frisches Aqua-Blau) -->
           <circle cx="150" cy="100" r="10" stroke="#0ea5e9" stroke-width="3" fill="#0ea5e9" fill-opacity="0.1" />
           <path d="M 110 100 L 190 100 M 150 60 L 150 140" stroke="#0ea5e9" stroke-width="4" />
           <!-- Sprühdüsen-Punkte -->
