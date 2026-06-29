@@ -108,15 +108,26 @@ function _renderPhaseSummary(rd, kwh, lit) {
     phases[r.phase].lit += lit[i] || 0;
   });
 
+  const badge = (icon, label, value, color) =>
+    `<div style="display:flex;flex-direction:column;align-items:center;padding:8px 14px;border:1px solid var(--border,#334155);border-radius:10px;background:var(--surface,#1e2235);min-width:100px;">
+      <span style="font-size:1rem;font-weight:700;color:${color};line-height:1.2;">${value}</span>
+      <span style="font-size:.65rem;color:var(--muted,#64748b);margin-top:2px;white-space:nowrap;">${icon} ${label}</span>
+    </div>`;
+
   const pKeys = Object.keys(phases);
   if (pKeys.length > 0) {
-    ps.innerHTML = pKeys.map(k => {
-      const p = phases[k];
-      return '<span style="color:' + (phaseClr[k] || 'var(--muted)') + '">' + (phaseEmoji[k] || '·') + ' ' + k + ': ' + F(p.kwh, 3) + ' kWh · ' + F(p.lit, 1) + ' L</span>';
-    }).join('');
+    ps.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 0;">` +
+      pKeys.map(k => {
+        const p = phases[k];
+        const val = F(p.kwh, 3) + ' kWh · ' + F(p.lit, 1) + ' L';
+        return badge(phaseEmoji[k] || '·', k, val, phaseClr[k] || 'var(--text)');
+      }).join('') + `</div>`;
   } else {
     const totalKwh = kwh.reduce((a, b) => a + b, 0);
     const totalLit = lit.reduce((a, b) => a + b, 0);
-    ps.innerHTML = '<span>Σ ' + F(totalKwh, 3) + ' kWh · ' + F(totalLit, 1) + ' L</span>';
+    ps.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 0;">` +
+      badge('Σ', 'Energie', F(totalKwh, 3) + ' kWh', '#ef4444') +
+      badge('Σ', 'Wasser', F(totalLit, 1) + ' L', '#3b82f6') +
+      `</div>`;
   }
 }

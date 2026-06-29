@@ -4,6 +4,7 @@
     /* App-spezifische Farben */
     --strom: var(--red);
     --wasser: var(--accent);
+    --muted: var(--text-muted);
     --grp: rgba(30, 34, 53, .5)
 }
 
@@ -369,7 +370,7 @@ canvas {
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: .65rem
+    font-size: .8rem
 }
 
 th {

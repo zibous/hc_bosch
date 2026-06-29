@@ -18,14 +18,14 @@ __pycache__/
 # -----------------------------------------------
 # Data (runtime, not source)
 # -----------------------------------------------
-data/dishwasher.db
-data/dishwasher.db.backup
-data/dishwasher.db.org
-data/history/
-data/simulate/
-data/ha/
-data/mqtt_sensors.json
-data/status.json
+# data/dishwasher.db
+# data/dishwasher.db.backup
+# data/dishwasher.db.org
+# data/history/
+# data/simulate/
+# data/ha/
+# data/mqtt_sensors.json
+# data/status.json
 logs/
 todos/
 
