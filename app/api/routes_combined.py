@@ -70,7 +70,7 @@ def api_all_data(
     }
 
 
-from app.schemas.kpi import KpiHero, KpiIndicator, KpiResponse
+from app.schemas.kpi import KpiHero, KpiIndicator, KpiMetric, KpiResponse
 
 @router.get("/kpidata", response_model=KpiResponse, response_model_exclude_none=True)
 def api_kpidata(db: DbManager = Depends(get_db), state: dict = Depends(get_state)):
@@ -130,6 +130,11 @@ def api_kpidata(db: DbManager = Depends(get_db), state: dict = Depends(get_state
             ),
             detail=detail,
             indicator=indicator,
+            metrics=[
+                KpiMetric(label="Heute", value=today.get("sessions", 0)),
+                KpiMetric(label="Monat", value=month_sessions),
+                KpiMetric(label="Letztes", value=last_session.get("program", "–") if last_session else "–"),
+            ],
         )
     except Exception as e:
         return KpiResponse(

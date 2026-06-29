@@ -21,6 +21,13 @@ class KpiHero(BaseModel):
     label: str = ""
 
 
+class KpiMetric(BaseModel):
+    """Einzelne Kennzahl für die Detailansicht."""
+    label: str
+    value: str | float | int
+    unit: str = ""
+
+
 class KpiResponse(BaseModel):
     app_id: str
     app_name: str
@@ -31,3 +38,4 @@ class KpiResponse(BaseModel):
     hero: KpiHero
     detail: str = ""
     indicator: KpiIndicator | None = None
+    metrics: list[KpiMetric] | None = None
