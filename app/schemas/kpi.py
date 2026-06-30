@@ -13,6 +13,8 @@ class KpiIndicator(BaseModel):
     values: list[float] | None = None
     zones: list[dict[str, Any]] | None = None
     trend_pct: float | None = None
+    unit: str = ""
+    label: str = ""
 
 
 class KpiHero(BaseModel):

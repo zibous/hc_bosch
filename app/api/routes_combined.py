@@ -110,11 +110,11 @@ def api_kpidata(db: DbManager = Depends(get_db), state: dict = Depends(get_state
             ls_program = last_session.get("program", "")
             detail = f"Letzter: {ls_program} · {ls_time}"
 
-        # Sparkline: Sessions pro Tag letzte 7 Tage
-        daily = db.get_daily_summary(days=7)
+        # Sparkline: Sessions pro Tag letzte 30 Tage
+        daily = db.get_daily_summary(days=30)
         sparkline = [d.get("sessions_count", 0) for d in daily] if daily else []
 
-        indicator = KpiIndicator(type="sparkline", values=sparkline) if sparkline else None
+        indicator = KpiIndicator(type="barchart", values=sparkline, label="Spülgänge") if sparkline else None
 
         return KpiResponse(
             app_id="hc_bosch",

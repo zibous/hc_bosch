@@ -42,8 +42,8 @@ export function CO(c, yt) {
 export function DS(kw, li, cn) {
   return [
     { label: 'kWh', data: kw, backgroundColor: '#ef4444cc', borderRadius: 3, yAxisID: 'y', maxBarThickness: 40 },
-    { label: 'Liter', data: li, backgroundColor: '#3b82f6cc', borderRadius: 3, yAxisID: 'y2', maxBarThickness: 40 },
-    { label: 'Sessions', data: cn, type: 'line', borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, tension: 0.3, yAxisID: 'y1' }
+    { label: 'Liter', data: li, backgroundColor: '#3b82f6cc', borderRadius: 3, yAxisID: 'y2', maxBarThickness: 40 }
+    // { label: 'Sessions', data: cn, type: 'line', borderColor: '#f59e0b', backgroundColor: 'transparent', borderWidth: 2, pointRadius: 3, tension: 0.3, yAxisID: 'y1' }
   ];
 }
 
