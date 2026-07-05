@@ -198,7 +198,7 @@ git-update: git-status ## Git Forgejo Update durchführen (Normaler Zwischenstan
 	git add -A
 	git commit -m "Update am $$(date +'%Y-%m-%d %H:%M')" || true
 	git push -u origin main
-	
+
 
 git-release: git-status ## Neues Versions-Tag automatisch berechnen, erstellen und zu Forgejo pushen
 	git add -A
@@ -213,7 +213,7 @@ git-release: git-status ## Neues Versions-Tag automatisch berechnen, erstellen u
 	git push origin $$NEXT_TAG; \
 	echo "🎉 Version $$NEXT_TAG erfolgreich an Forgejo übermittelt!"
 
-
+.PHONY: env-example
 
 help: ## Show this help
 	@echo ""
