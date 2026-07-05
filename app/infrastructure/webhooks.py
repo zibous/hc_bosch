@@ -15,10 +15,11 @@ logger = logging.getLogger(__name__) # Nutzt automatisch die Konfiguration aus a
 
 
 class Webhook:
-    def __init__(self, base_url: str, webhook_id: str, timeout: int = 5):
+    def __init__(self, base_url: str, webhook_id: str, timeout: int = 5, log_file: str = None):
         self.base_url = base_url.rstrip("/")
         self.webhook_id = webhook_id
         self.timeout = timeout
+        self.log_file = log_file
 
     @property
     def url(self) -> str:
@@ -32,10 +33,34 @@ class Webhook:
                 timeout=self.timeout
             )
             response.raise_for_status()
+            # self._log_payload(data, ok=True)
             return True
         except requests.RequestException as e:
             logger.debug(f"Webhook send failed: {e}")
+            self._log_payload(data, ok=False, error=str(e))
             return False
+
+    def _log_payload(self, data: Optional[Dict[str, Any]], ok: bool, error: str = None):
+        """Schreibt jeden Webhook-Payload in eine JSONL-Datei."""
+        if not self.log_file:
+            return
+        try:
+            import json, os
+            from datetime import datetime
+            os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
+            entry = {
+                "ts": datetime.now().isoformat(timespec="seconds"),
+                "webhook_id": self.webhook_id,
+                "ok": ok,
+            }
+            if data:
+                entry.update(data)
+            if error:
+                entry["error"] = error
+            with open(self.log_file, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception:
+            pass  # Logging darf nie die App crashen
 
 
 _webhook: Optional[Webhook] = None
@@ -51,7 +76,8 @@ def _get_webhook() -> Optional[Webhook]:
         url = app_config.HA_WEBHOOK_URL
         wid = app_config.HA_WEBHOOK_ID
         if url and wid:
-            _webhook = Webhook(base_url=url, webhook_id=wid)
+            log_file = getattr(app_config, "WEBHOOK_LOG_FILE", None) or "logs/webhooks.jsonl"
+            _webhook = Webhook(base_url=url, webhook_id=wid, log_file=log_file)
             return _webhook
     except Exception:
         pass

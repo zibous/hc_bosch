@@ -1,0 +1,177 @@
+
+webhook_hc_bosch_pack:
+  # ═══════════════════════════════════════════════════════════════════════
+  # Home Assistant Webhook-Vorlage für hc_bosch (Bosch Geschirrspüler)
+  # ═══════════════════════════════════════════════════════════════════════
+  #
+  # Konfiguration in .env:
+  #   HA_WEBHOOK_URL=http://192.168.1.xxx:8123
+  #   HA_WEBHOOK_ID=bosch_dishwasher
+  #
+  # Verfügbare Events & Payload-Felder:
+  # ┌──────────────────┬────────────────────────────────────────────────────────────────────┐
+  # │ Event            │ Felder                                                             │
+  # ├──────────────────┼────────────────────────────────────────────────────────────────────┤
+  # │ app_start        │ version                                                            │
+  # │ app_stop         │ version, uptime                                                    │
+  # │ session_end      │ result, program, duration_min, energy_kwh, water_liters,           │
+  # │                  │ tabs_remaining                                                     │
+  # │ session_summary  │ program, duration_min, energy_kwh, water_liters, cost_strom,       │
+  # │                  │ cost_wasser, cost_total, result, start_time, end_time              │
+  # │ heartbeat        │ uptime, status                                                     │
+  # │ error            │ message, severity                                                  │
+  # └──────────────────┴────────────────────────────────────────────────────────────────────┘
+  #
+  # Alle Payloads enthalten: event, device ("dishwasher"), timestamp
+  #
+  # Beispiel-Payload (session_summary):
+  # {
+  #   "event": "session_summary",
+  #   "device": "dishwasher",
+  #   "timestamp": "2026-07-03 14:32:01",
+  #   "program": "Eco 50°",
+  #   "duration_min": 195,
+  #   "energy_kwh": 0.87,
+  #   "water_liters": 9.5,
+  #   "cost_strom": 0.278,
+  #   "cost_wasser": 0.047,
+  #   "cost_total": 0.325,
+  #   "result": "Finished",
+  #   "start_time": "2026-07-03 11:17:00",
+  #   "end_time": "2026-07-03 14:32:01"
+  # }
+  # ═══════════════════════════════════════════════════════════════════════
+
+
+  # ─────────────────────────────────────────────────────────────────────
+  # AUTOMATIONS (→ automations.yaml)
+  # ─────────────────────────────────────────────────────────────────────
+
+  automation:
+
+    # Spülgang beendet – Benachrichtigung
+    - alias: "Geschirrspüler – Spülgang beendet"
+      id: bosch_dishwasher_session_end
+      trigger:
+        - platform: webhook
+          webhook_id: bosch_dishwasher
+          allowed_methods:
+            - POST
+          local_only: true
+      condition:
+        - condition: template
+          value_template: "{{ trigger.json.event == 'session_summary' }}"
+      action:
+        - service: notify.notify
+          data:
+            title: "🍽️ Geschirrspüler fertig"
+            message: >-
+              {{ trigger.json.program }} abgeschlossen
+              ({{ trigger.json.duration_min }} Min).
+              Verbrauch: {{ trigger.json.energy_kwh }} kWh /
+              {{ trigger.json.water_liters }} L –
+              Kosten: {{ trigger.json.cost_total }}€
+
+    # App gestartet – Logbuch-Eintrag
+    - alias: "Geschirrspüler – App gestartet"
+      id: bosch_dishwasher_app_start
+      trigger:
+        - platform: webhook
+          webhook_id: bosch_dishwasher
+          allowed_methods:
+            - POST
+          local_only: true
+      condition:
+        - condition: template
+          value_template: "{{ trigger.json.event == 'app_start' }}"
+      action:
+        - service: logbook.log
+          data:
+            name: "Geschirrspüler"
+            message: "App v{{ trigger.json.version }} gestartet"
+
+    # App gestoppt – Logbuch-Eintrag
+    - alias: "Geschirrspüler – App gestoppt"
+      id: bosch_dishwasher_app_stop
+      trigger:
+        - platform: webhook
+          webhook_id: bosch_dishwasher
+          allowed_methods:
+            - POST
+          local_only: true
+      condition:
+        - condition: template
+          value_template: "{{ trigger.json.event == 'app_stop' }}"
+      action:
+        - service: logbook.log
+          data:
+            name: "Geschirrspüler"
+            message: "App v{{ trigger.json.version }} gestoppt (Uptime: {{ trigger.json.uptime }})"
+
+    # Fehler – Persistente Benachrichtigung
+    - alias: "Geschirrspüler – Fehler"
+      id: bosch_dishwasher_error
+      trigger:
+        - platform: webhook
+          webhook_id: bosch_dishwasher
+          allowed_methods:
+            - POST
+          local_only: true
+      condition:
+        - condition: template
+          value_template: "{{ trigger.json.event == 'error' }}"
+      action:
+        - service: notify.persistent_notification
+          data:
+            title: "⚠️ Geschirrspüler Fehler"
+            message: "{{ trigger.json.message }} ({{ trigger.json.severity }})"
+
+
+  # ─────────────────────────────────────────────────────────────────────
+  # TEMPLATE SENSOREN (→ configuration.yaml)
+  # ─────────────────────────────────────────────────────────────────────
+
+  template:
+    - trigger:
+        - platform: webhook
+          webhook_id: bosch_dishwasher
+          allowed_methods:
+            - POST
+          local_only: true
+      sensor:
+        - name: "Geschirrspüler letzter Verbrauch kWh"
+          unique_id: bosch_dw_last_energy
+          state: "{{ trigger.json.energy_kwh | default(0) }}"
+          unit_of_measurement: "kWh"
+          device_class: energy
+          state_class: measurement
+          availability: "{{ trigger.json.event == 'session_summary' }}"
+
+        - name: "Geschirrspüler letzter Verbrauch Wasser"
+          unique_id: bosch_dw_last_water
+          state: "{{ trigger.json.water_liters | default(0) }}"
+          unit_of_measurement: "L"
+          device_class: water
+          state_class: measurement
+          availability: "{{ trigger.json.event == 'session_summary' }}"
+
+        - name: "Geschirrspüler letzte Kosten"
+          unique_id: bosch_dw_last_cost
+          state: "{{ trigger.json.cost_total | default(0) }}"
+          unit_of_measurement: "€"
+          device_class: monetary
+          state_class: measurement
+          availability: "{{ trigger.json.event == 'session_summary' }}"
+
+        - name: "Geschirrspüler letztes Programm"
+          unique_id: bosch_dw_last_program
+          state: "{{ trigger.json.program | default('–') }}"
+          availability: "{{ trigger.json.event == 'session_summary' }}"
+
+        - name: "Geschirrspüler letzte Dauer"
+          unique_id: bosch_dw_last_duration
+          state: "{{ trigger.json.duration_min | default(0) }}"
+          unit_of_measurement: "min"
+          device_class: duration
+          state_class: measurement
+          availability: "{{ trigger.json.event == 'session_summary' }}"
