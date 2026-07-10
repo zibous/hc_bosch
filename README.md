@@ -3,6 +3,8 @@
 Local network bridge for Bosch-Siemens Home Connect appliances → MQTT → Home Assistant.
 FastAPI-basiertes Dashboard mit Echtzeit-Session-Tracking und Verbrauchsanalyse.
 
+![Screenshot der Anwendung](doc/dishwasher.png)
+
 ## Application Workflow
 
 ```
