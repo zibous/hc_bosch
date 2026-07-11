@@ -4,7 +4,7 @@
     "remaining": "4:55",
     "power": "Off",
     "error": "Off",
-    "phase": "Trocknen",
+    "phase": null,
     "finished": "Off",
     "halfload": false,
     "progress": 0,
@@ -21,12 +21,11 @@
     "selectedprogram_raw": 8196,
     "activeprogram_raw": 0,
     "programm": "Eco 50°",
-    "tabs_remaining": 19,
+    "tabs_remaining": 20,
     "tapsorder": "",
     "device": "bosch-dishwasher.siebler.home",
-    "lastupdate": "2026-07-10 17:07:33",
+    "lastupdate": "2026-07-11 07:44:23",
     "dataprovider": "Docker App",
     "version": "2.2.0",
-    "attribution": "Data provided by home-connect-mqtt",
-    "phase_raw": "Drying"
+    "attribution": "Data provided by home-connect-mqtt"
 }
