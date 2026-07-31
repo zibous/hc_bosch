@@ -42,49 +42,22 @@ Der Geschirrspüler öffnet einen lokalen HTTPS-Port mit der ungewöhnlichen Cip
 
 Die Anwendung basiert auf FastAPI und verbindet drei Kernkomponenten: den WebSocket-Listener zum Gerät, einen optionalen MQTT-Publisher und eine SQLite-Datenbank für die Langzeit-Analyse.
 
-```text
-┌─────────────────────────────────────────────────────────────────────────┐
-│                            main.py (Entry)                              │
-└────────┬──────────────────────┬─────────────────────────┬───────────────┘
-         │                      │                         │
-         ▼                      ▼                         ▼
-┌─────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
-│  FastAPI Server │  │  MQTT WebSocket Feed │  │  Sensor Publisher    │
-│  (Port 5021)    │  │  (Bosch Appliance)   │  │  (30s aktiv/120s)    │
-└────────┬────────┘  └──────────┬───────────┘  └──────────┬───────────┘
-         │                      │                         │
-         │                      ▼                         │
-         │           ┌──────────────────────┐             │
-         │           │   State Manager      │             │
-         │           │   (data2mqtt.py)     │◄────────────┘
-         │           └─────┬──────────┬─────┘
-         │                 │          │
-         │                 ▼          ▼
-         │     ┌────────────────┐  ┌──────────────────┐
-         │     │ status.json    │  │ Session Tracker  │
-         │     │ (Persist)      │  │ (Start/End)      │
-         │     └────────────────┘  └────────┬─────────┘
-         │                                  │
-         ▼                                  ▼
-┌─────────────────────────────────────────────────────────┐
-│                    SQLite DB                            │
-│  sessions │ daily_summary │ state_log │ session_readings│
-└─────────────────────────────────────────────────────────┘
-         │                                  │
-         ▼                                  ▼
-┌──────────────────┐              ┌──────────────────────┐
-│  REST API        │              │  MQTT Broker         │
-│  /api/live       │              │  HA Discovery        │
-│  /api/daily      │              │  Sensor Data         │
-│  /api/sessions   │              └──────────────────────┘
-└────────┬─────────┘                        │
-         │                                  ▼
-         ▼                        ┌──────────────────────┐
-┌──────────────────┐              │  Home Assistant      │
-│  Web Dashboard   │              │  Webhook Events      │
-│  (Frontend SPA)  │              └──────────────────────┘
-└──────────────────┘
-```
+{{< mermaid >}}
+flowchart TD
+    Main["main.py (Entry)"] --> FastAPI["FastAPI Server :5021"]
+    Main --> WS["MQTT WebSocket Feed<br>(Bosch Appliance)"]
+    Main --> Sensor["Sensor Publisher<br>(30s/120s)"]
+    WS --> State["State Manager<br>(data2mqtt.py)"]
+    Sensor --> State
+    State --> Status["status.json"]
+    State --> Session["Session Tracker"]
+    FastAPI --> DB["SQLite DB<br>sessions · daily_summary · state_log"]
+    Session --> DB
+    DB --> API["REST API<br>/api/live · /api/daily · /api/sessions"]
+    DB --> MQTT["MQTT Broker<br>HA Discovery"]
+    API --> Dashboard["Web Dashboard (SPA)"]
+    MQTT --> HA["Home Assistant<br>Webhook Events"]
+{{< /mermaid >}}
 
 Der **Offline-Modus** (`MQTT_HOST=disabled`) erlaubt den reinen Dashboard-Betrieb ohne MQTT-Broker – ideal für erste Tests oder wenn Home Assistant nicht im Einsatz ist.
 
