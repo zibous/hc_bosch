@@ -13,10 +13,10 @@ services:
       - "${DASHBOARD_PORT:-5021}:${DASHBOARD_PORT:-5021}"
 
     volumes:
-      - ${PWD}/data:/app/data
-      - ${PWD}/app/config:/app/app/config
-      - ${PWD}/logs:/app/logs
-      - ${PWD}/frontend:/app/frontend
+      - ./data:/app/data
+      - ./app/config:/app/app/config
+      - ./logs:/app/logs
+      - ./frontend:/app/frontend
 
     healthcheck:
       test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:${DASHBOARD_PORT:-5021}/api/health')\" || exit 1"]

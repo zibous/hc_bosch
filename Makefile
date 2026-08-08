@@ -16,12 +16,21 @@ CONTAINER := $(shell basename $(CURDIR))
         webhook-test cloud-login requirements clean clean-mac help \
         testdata-random simulate-dry simulate-slow backup compare
 
-PYTHON := $(shell if [ -f /dockerapps/apps_v2/.venv/bin/python ]; then echo /dockerapps/apps_v2/.venv/bin/python; else echo python3; fi)
+PYTHON := $(shell if [ -f ../.venv/bin/python ]; then echo ../.venv/bin/python; else echo python3; fi)
+
+ptv: ## Get python version and venv status	
+	@echo "  Pfad zu Python:    $(PYTHON)"
+	@if [ -n "$(VIRTUAL_ENV)" ]; then \
+		echo "  Venv aktiv?        JA (Pfad: $(VIRTUAL_ENV))"; \
+	else \
+		echo "  Venv aktiv?        NEIN (Globales System)"; \
+	fi
+	@echo -n "  Version:           "
+	@$(PYTHON) --version
 
 # ---------------------------------------------------------
 # Lokales Ausfuehren
 # ---------------------------------------------------------
-
 run: ## Start project locally
 	$(PYTHON) main.py
 
