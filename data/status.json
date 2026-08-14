@@ -1,6 +1,6 @@
 {
     "state": "Ready",
-    "door": "Closed",
+    "door": "Open",
     "remaining": "2:20",
     "power": "Off",
     "error": "Off",
@@ -24,7 +24,7 @@
     "tabs_remaining": 19,
     "tapsorder": "",
     "device": "bosch-dishwasher.siebler.home",
-    "lastupdate": "2026-08-12 19:50:46",
+    "lastupdate": "2026-08-14 12:48:47",
     "dataprovider": "Docker App",
     "version": "2.2.0",
     "attribution": "Data provided by home-connect-mqtt",
