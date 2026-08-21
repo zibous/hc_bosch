@@ -24,7 +24,7 @@
     "tabs_remaining": 18,
     "tapsorder": "",
     "device": "bosch-dishwasher.siebler.home",
-    "lastupdate": "2026-08-21 16:53:41",
+    "lastupdate": "2026-08-21 17:08:15",
     "dataprovider": "Docker App",
     "version": "2.2.0",
     "attribution": "Data provided by home-connect-mqtt",
