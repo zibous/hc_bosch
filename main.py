@@ -1,6 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+HC_BOSCH Application
+
+Copyright © 2026 Peter. All rights reserved.
+
+THIS SOFTWARE IS PROPRIETARY AND CONFIDENTIAL.
+No part of this software may be reproduced, distributed, or transmitted
+in any form or by any means without prior written permission.
+"""
+
 import os
 import sys
 import threading
