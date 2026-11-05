@@ -12,8 +12,8 @@ LABEL maintainer="Peter Siebler <peter.siebler@gmail.com>" \
       application="Dashboard Bosch Home Connect" \
       version="2.2.0" \
       com.centurylinklabs.watchtower.enable="false" \
-      dockerhand.check-update="false" \
-      dockerhand.ignore="true"
+      dockhand.check-update="false" \
+      dockhand.ignore="true"
 
 WORKDIR /app
 

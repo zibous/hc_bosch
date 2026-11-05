@@ -15,7 +15,7 @@
     "waterforecast": 54,
     "selectedprogram": "Auto 45-65°",
     "activeprogram": "",
-    "sessions": 42,
+    "sessions": 2,
     "extradry": false,
     "remainingseconds": 8400,
     "selectedprogram_raw": 8195,
@@ -24,7 +24,7 @@
     "tabs_remaining": 20,
     "tapsorder": "",
     "device": "bosch-dishwasher.siebler.home",
-    "lastupdate": "2026-10-05 09:46:24",
+    "lastupdate": "2026-11-05 09:00:19",
     "dataprovider": "Docker App",
     "version": "2.2.0",
     "attribution": "Data provided by home-connect-mqtt"
